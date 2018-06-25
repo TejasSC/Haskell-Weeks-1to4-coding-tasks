@@ -69,6 +69,3 @@ hanoi n a b c
     | otherwise = hanoi (n-1) a c b ++ [(a,b)] ++ hanoi (n-1) c b a 
     -- step case recursively calls hanoi a step down
     -- note for all n ≥ 1, the move (a,b) is included exactly in the middle 
-
-
-
