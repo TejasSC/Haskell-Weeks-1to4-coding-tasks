@@ -82,3 +82,5 @@ removeDups = foldl' (\seen x -> if x `elem` seen then seen else seen ++ [x]) []
 cartProd :: [Integer] -> [Integer] -> [(Integer, Integer)]
 cartProd xs ys = [(x,y) | x <- xs, y <- ys] 
 
+
+
