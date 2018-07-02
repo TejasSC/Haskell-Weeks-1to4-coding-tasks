@@ -1,4 +1,3 @@
-module WeekFour where 
 import Data.List 
 ---------------------------------------------------------------------------------
 -- Exercise 1: Wholemeal programming
