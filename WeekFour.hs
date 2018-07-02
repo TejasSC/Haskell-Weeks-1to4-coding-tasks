@@ -3,17 +3,15 @@ import Data.List
 -- Exercise 1: Wholemeal programming
 ---------------------------------------------------------------------------------
 fun1' :: [Integer] -> Integer
-fun1' = product . map (\x -> x-2) . filter (even)
+fun1' = product . map (subtract 2) . filter even
 
 fun2' :: Integer -> Integer
-fun2' = sum . gatherNums
+fun2' = sum . subFunc
 
-gatherNums :: Integer -> [Integer]
-gatherNums 1    = [0]
-gatherNums n
-    | even n    = [n] ++ gatherNums (n `div` 2 )
-    | otherwise = gatherNums (3*n + 1)
-
+-- Need only evens, greater than 1 
+subFunc :: Integer -> [Integer]
+subFunc = filter even . takeWhile (>1) . iterate 
+          (\a -> if even a then a `div` 2 else (3*a + 1))
 ---------------------------------------------------------------------------------
 -- Exercise 2: Folding with trees 
 ---------------------------------------------------------------------------------
@@ -30,7 +28,12 @@ height (Node _ Leaf _ Leaf)  = 0
 height (Node _ left _ right) = 1 + max (height left) (height right)
 
 insertInTree :: a -> Tree a -> Tree a 
-insertInTree x Leaf                  = Node 0 Leaf x Leaf
+insertInTree x Leaf                  = Node 0 Leaf x Leaf  -- Base case 
+-- 3 other base cases for inserting into a balanced binary tree 
+insertInTree x (Node h Leaf y Leaf)  = Node 1 (insertInTree x Leaf) y Leaf
+insertInTree x (Node h Leaf y right) = Node h (insertInTree x Leaf) y right
+insertInTree x (Node h left y Leaf)  = Node h left y (insertInTree x Leaf)
+-- Step case, to ensure no heights of any two subtrees at the bottom differ by > 1
 insertInTree x (Node n left y right) = case compare (height left) (height right) of 
     GT -> Node (n-1) left y (insertInTree x right)
     EQ -> Node (h+1) left y (insertInTree x right)
@@ -38,32 +41,21 @@ insertInTree x (Node n left y right) = case compare (height left) (height right)
             h = height right 
     LT -> Node (n-1) (insertInTree x left) y right
 
--- Builds a balanced binary tree from a sorted list 
-buildFromSorted :: [a] -> Tree a 
-buildFromSorted []   = Leaf
-buildFromSorted list = Node (height) left (list!!middle) right 
-    where 
-        middle = (length list) `div` 2
-        left   = buildFromSorted $ take middle list 
-        right  = buildFromSorted $ drop (middle + 1) list 
-        height = floor $ logBase 2 (fromIntegral $ length list)
-
 ---------------------------------------------------------------------------------
 -- Exercise 3: More folds
 ---------------------------------------------------------------------------------
 -- The xor function below returns True if and only if there is an odd number of True
 -- values in the list supplied 
 xor :: [Bool] -> Bool
-xor [] = False
-xor (x:xs) = foldr (funcXOR) x xs 
+xor = foldr funcXOR False 
 
+-- Returns true if and only if a and b are not the same 
 funcXOR :: Bool -> Bool -> Bool
-funcXOR a b = (a && (not b)) || ((not a) && b)
+funcXOR a b = (a /= b)
 
 -- The function below is equivalent to map, but using foldr instead 
 map' :: (a -> b) -> [a] -> [b]
-map' f [] = []
-map' f xs = foldr (\x xs -> (f x):xs) [] xs
+map' f = foldr (\x xs -> (f x):xs) []
 
 ---------------------------------------------------------------------------------
 -- Exercise 4: Finding primes
@@ -84,11 +76,9 @@ wasteForm (x,y) = x + y + 2*x*y
 
 -- Removes any duplicates occuring in wasteNums, since sets can't have duplicates
 removeDups :: [Integer] -> [Integer]
-removeDups = foldl (\seen x -> if x `elem` seen then seen else seen ++ [x]) []
+removeDups = foldl' (\seen x -> if x `elem` seen then seen else seen ++ [x]) []
 
 -- Used to group two lists of numbers into pairs, helps a lot with abstraction 
 cartProd :: [Integer] -> [Integer] -> [(Integer, Integer)]
 cartProd xs ys = [(x,y) | x <- xs, y <- ys] 
-
-
 
