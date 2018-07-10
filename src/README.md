@@ -1,1 +1,0 @@
-# Haskell-Weeks-1to4-coding-tasks
